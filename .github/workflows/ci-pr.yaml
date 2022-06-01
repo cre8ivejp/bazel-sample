@@ -1,0 +1,66 @@
+name: ci-pr
+
+on:
+  pull_request:
+    branches: [master]
+
+env:
+  GO_VERSION: 1.17.10
+  GOLANGCI_LINT_VERSION: v1.46.2
+  BUILDIFIER_VERSION: 5.1.0
+  BAZEL_CACHE_PATH: "~/.cache/bazel"
+  BAZEL_CACHE_KEY: bazel
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: golangci/golangci-lint-action@v3
+        with:
+          version: ${{ env.GOLANGCI_LINT_VERSION }}
+      - run: make lint
+
+  buildifier-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - run: go install github.com/bazelbuild/buildtools/buildifier@${{ env.BUILDIFIER_VERSION }}
+      - run: make buildifier-check
+
+  gazelle-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: bazelbuild/setup-bazelisk@v2
+      - uses: actions/cache@v3
+        with:
+          path: ${{ env.BAZEL_CACHE_PATH }}
+          key: ${{ env.BAZEL_CACHE_KEY }}
+      - run: make gazelle-check
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: bazelbuild/setup-bazelisk@v2
+      - uses: actions/cache@v3
+        with:
+          path: ${{ env.BAZEL_CACHE_PATH }}
+          key: ${{ env.BAZEL_CACHE_KEY }}
+      - run: make build
+
+  run:
+    needs: ["build"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: bazelbuild/setup-bazelisk@v2
+      - uses: actions/cache@v3
+        with:
+          path: ${{ env.BAZEL_CACHE_PATH }}
+          key: ${{ env.BAZEL_CACHE_KEY }}
+      - run: make run
