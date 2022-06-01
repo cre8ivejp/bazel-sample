@@ -52,15 +52,3 @@ jobs:
           path: ${{ env.BAZEL_CACHE_PATH }}
           key: ${{ env.BAZEL_CACHE_KEY }}
       - run: make build
-
-  run:
-    needs: ["build"]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: bazelbuild/setup-bazelisk@v2
-      - uses: actions/cache@v3
-        with:
-          path: ${{ env.BAZEL_CACHE_PATH }}
-          key: ${{ env.BAZEL_CACHE_KEY }}
-      - run: make run
