@@ -5,3 +5,4 @@ bazel-out
 bazel-testlogs
 vendor
 .DS_Store
+/proto/**/*.pb.go

@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package ping;
+
+option go_package = "github.com/cre8ivejp/bazel-sample/proto;ping";
+
+service Ping {
+  rpc Ping(PingRequest) returns (PingResponse) {}
+}
+
+message PingRequest {}
+
+message PingResponse { int64 timestamp = 1; }

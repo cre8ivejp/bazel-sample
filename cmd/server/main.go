@@ -1,32 +1,36 @@
 package main
 
 import (
-	"fmt"
+	"context"
 	"log"
+	"net"
+	"time"
 
-	"net/http"
+	"google.golang.org/grpc"
 
-	"github.com/cre8ivejp/bazel-sample/pkg/uuid"
+	pingproto "github.com/cre8ivejp/bazel-sample/proto/ping"
 )
 
-type HttpHandler struct{}
+const (
+	port = ":8080"
+)
 
-func (h HttpHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	id, err := uuid.Generate()
-	if err != nil {
-		log.Fatal(err)
-	}
-	message := fmt.Sprintf("Hello World! UUID: %s", id)
-	data := []byte(message)
-	_, err = res.Write(data)
-	if err != nil {
-		log.Fatal(err)
-	}
+type server struct{}
+
+func (s *server) Ping(ctx context.Context, in *pingproto.PingRequest) (*pingproto.PingResponse, error) {
+	return &pingproto.PingResponse{Timestamp: time.Now().Unix()}, nil
 }
 
 func main() {
-	handler := HttpHandler{}
-	if err := http.ListenAndServe(":9000", handler); err != nil {
+	lis, err := net.Listen("tcp", port)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	s := grpc.NewServer()
+	pingproto.RegisterPingServer(s, &server{})
+	err = s.Serve(lis)
+	if err != nil {
 		log.Fatal(err)
 	}
 }

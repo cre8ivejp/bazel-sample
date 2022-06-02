@@ -1,18 +1,19 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 
 go_library(
-    name = "server_lib",
+    name = "client_lib",
     srcs = ["main.go"],
-    importpath = "github.com/cre8ivejp/bazel-sample/cmd/server",
+    importpath = "github.com/cre8ivejp/bazel-sample/cmd/client",
     visibility = ["//visibility:private"],
     deps = [
         "//proto/ping",
         "@org_golang_google_grpc//:go_default_library",
+        "@org_golang_google_grpc//credentials/insecure",
     ],
 )
 
 go_binary(
-    name = "server",
-    embed = [":server_lib"],
+    name = "client",
+    embed = [":client_lib"],
     visibility = ["//visibility:public"],
 )

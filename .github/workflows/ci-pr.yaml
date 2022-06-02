@@ -42,6 +42,15 @@ jobs:
           key: ${{ env.BAZEL_CACHE_KEY }}
       - run: make gazelle-check
 
+  proto-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: jidicula/clang-format-action@v4.6.2
+        with:
+          clang-format-version: "14"
+      - run: make proto-fmt-check
+
   build:
     runs-on: ubuntu-latest
     steps:
